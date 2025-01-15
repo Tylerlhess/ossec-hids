@@ -104,6 +104,7 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
     if (pieces[0] == '<') {
         /* Increment past the < */
         pieces++;
+        lf->log++;
         /*move past the 1-3 digits
         Increment lf->log along the way */
         while (isdigit((int)*pieces)) {
@@ -116,10 +117,13 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                 (pieces[1] == '1') || (pieces[1] == '2')
             ) &&
             (pieces[2] == ' ')) {
-            pieces += 2;
+            pieces ++;
+            lf->log++;
+            pieces ++;
+            lf->log++;
             pieces[0] = '\0';
             pieces++;
-            lf->log += 3;
+            lf->log ++;
         } else {
             /* Walk back to the beginning as not Syslog protocol 23 */
             pieces--;
@@ -141,6 +145,7 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
      *   or  2007-06-14T15:48:55-04:00 for syslog-ng isodate
      *   or  2007-06-14T15:48:55.3352-04:00 for syslog-ng isodate with up to 6 optional fraction of a second
      *   or  2009-05-22T09:36:46.214994-07:00 for rsyslog
+     * <78>1 2025-01-13T23:35:01.877499-07:00 pdlprojectsend124 CRON 1783176 - -  (root) CMD (command -v debian-sa1 > /dev/null && debian-sa1 1 1)
      *   or  2015 Dec 29 10:00:01 )
      */
     if (
@@ -178,6 +183,7 @@ int OS_CleanMSG(char *msg, Eventinfo *lf)
                 )
                 ||
                 /* ex: 2007-06-14T15:48:55.3-04:00 or 2009-05-22T09:36:46,214994-07:00 */
+                /*<78>1 2025-01-13T23:35:01.877499-07:00 */
                 (
                     (
                         (pieces[19] == '.') || (pieces[19] == ',')
